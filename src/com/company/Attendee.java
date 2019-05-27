@@ -4,12 +4,18 @@ import java.util.Objects;
 
 public class Attendee implements Runnable {
     private String name;
-    private Lottery lottery = Lottery.getInstance();
+    private Lottery lottery;
 
+    public Lottery getLottery() {
+        return lottery;
+    }
+
+    public void setLottery(Lottery lottery) {
+        this.lottery = lottery;
+    }
 
     public Attendee(String name) {
         this.name = name;
-        lottery.takePartInLottery(this);
     }
 
     public String getName() {
@@ -24,12 +30,14 @@ public class Attendee implements Runnable {
     @Override
     public void run() {
         Attendee winner = lottery.getWinner();
-        if (winner.equals(this)) {
-            System.out.println("I am the winner! Name: " + getName() + " from " + Thread.currentThread().getName());
-            System.out.println("--------------------------------------------------------------");
+        if (winner == null) {
+            System.out.println("Nobody is selected yet.");
+        } else if (winner.equals(this)) {
+            System.out.println(Thread.currentThread().getName() + ": I am the winner :D \\o/");
+
+        } else if (!winner.equals(this)) {
+            System.out.println(Thread.currentThread().getName() + ": hmm sad... I am not a winner :(");
         }
-
-
     }
 
     @Override

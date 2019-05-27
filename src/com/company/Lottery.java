@@ -3,12 +3,13 @@ package com.company;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-public class Lottery implements Runnable {
+public final class Lottery implements Runnable {
     public static int roundTime = 60 * 5 * 1000; // round time (ms) 7 * 1000
     private static final int listCapacity = 10;
-    private List<Attendee> attendeeList = new ArrayList<>(listCapacity);
-    private static Lottery lottery;
+    private CopyOnWriteArrayList<Attendee> attendeeList = new CopyOnWriteArrayList<Attendee>();// new ArrayList<>(listCapacity); // !!! change to concurrent Colletction
+    private volatile static Lottery instance;
     private Object lock = new Object();
     public volatile boolean isWinnerSelected = false;
     private volatile Attendee winner = null;
@@ -17,11 +18,17 @@ public class Lottery implements Runnable {
     private Lottery() {
     }
 
-    public synchronized static Lottery getInstance() {
-        if (lottery == null) {
-            lottery = new Lottery();
+    public static Lottery getInstance() {
+        Lottery result = instance;
+        if (result == null) {
+            synchronized (Lottery.class) {
+                result = instance;
+                if (result == null) {
+                    instance = result = new Lottery();
+                }
+            }
         }
-        return lottery;
+        return instance;
     }
 
     public boolean takePartInLottery(Attendee attendee) {
@@ -59,7 +66,7 @@ public class Lottery implements Runnable {
 
     public Attendee getWinner() {
         if (isWinnerSelected) {
-            System.out.println("Winner is: " + winner + "(from thread " + Thread.currentThread().getName() + ")");
+           // System.out.println("Winner is: " + winner + "(from thread " + Thread.currentThread().getName() + ")");
             return winner;
         } else {
             System.out.println("Winner is not selected yet.");

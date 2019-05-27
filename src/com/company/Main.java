@@ -4,9 +4,17 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException {
         Lottery lottery = Lottery.getInstance();
+
         Attendee a1 = new Attendee("1");
         Attendee a2 = new Attendee("2");
         Attendee a3 = new Attendee("3");
+        a1.setLottery(lottery);
+        a2.setLottery(lottery);
+        a3.setLottery(lottery);
+        lottery.takePartInLottery(a1);
+        lottery.takePartInLottery(a2);
+        lottery.takePartInLottery(a3);
+
         Thread game = new Thread(lottery);
         game.start();
 
@@ -14,13 +22,12 @@ public class Main {
 
         while (true) { // everybody checks who is the winner
             if (lottery.isWinnerSelected) {
-
                 System.out.println();
                 System.out.println("Attendees start to check who is the winner: ");
                 new Thread(a1).start();
                 new Thread(a2).start();
                 new Thread(a3).start();
-
+                System.out.println("--------------------------------------------------------------");
                 Thread.sleep(Lottery.roundTime); //- 3000
             }
         }
